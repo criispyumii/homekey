@@ -2,10 +2,7 @@
 
 import { GetHomesParams, GetHomesResponse } from "../types";
 
-export const getHomes = async (
-  params: GetHomesParams
-): Promise<GetHomesResponse> => {
-  console.log("calling getHomes. Passed params:", params);
+export const getHomes = async (params: GetHomesParams): Promise<GetHomesResponse> => {
   const { location, ...restParams } = params;
   const queryParams = new URLSearchParams();
 

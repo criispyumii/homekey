@@ -1,5 +1,4 @@
-// HOME INPUT PROPERTIES
-// ADDITIONAL PARAMS TO QUERY HOMES
+// INPUTS TO QUERY HOMES (getParams)
 export interface GetHomesParams {
   page: 1;
   home_type: "House";
@@ -44,7 +43,38 @@ export interface GetHomesParams {
 type ValueOf<T> = T[keyof T];
 export type ValueOfGetHomesParams = ValueOf<GetHomesParams>;
 
-// HOME ATTRIBUTES RESPONSE
+// AUTOCOMPLETE LOCATIONS (autocomplete)
+/* eslint-disable */
+export enum USBoundaries {
+  LAT_LOW = "24.396308",
+  LNG_LOW = "-125.000000",
+  LAT_HIGH = "49.3457868",
+  LNG_HIGH = "-66.93457",
+}
+/* eslint-enable */
+
+export interface PlacePrediction {
+  placePrediction: {
+    placeId: string;
+    text: {
+      text: string;
+    };
+    structuredFormat: {
+      mainText: {
+        text: string;
+      };
+      secondaryText: {
+        text: string;
+      };
+    };
+  };
+}
+
+export interface AutoCompleteResponse {
+  suggestions: PlacePrediction[];
+}
+
+// HOMES RESPONSE (getHomes)
 export interface Home {
   baths: number;
   beds: number;
@@ -130,7 +160,36 @@ export interface GetHomesResponse {
   suggestionLocation?: SuggestionLocation[];
 }
 
-// OPEN AI
+// FETCH HOME PHOTOS (getPhotos)
+interface PhotosUrl {
+  fullScreenPhotoUrl: string;
+  lightboxListUrl: string;
+  nonFullScreenPhotoUrl: string;
+  nonFullScreenPhotoUrlCompressed: string;
+}
+
+interface Photos {
+  displayLevel: number;
+  fileName: string;
+  height: number;
+  photoId: number;
+  photoType: string;
+  photoUrls: PhotosUrl;
+  subdirectory: string;
+  thumbnailData: {
+    thumbnailUrl: string;
+  };
+  width: number;
+}
+
+export interface GetPhotosResponse {
+  data: Photos[];
+  message: string;
+  status: boolean;
+  typeName: string;
+}
+
+// OPEN AI (refineMessage)
 interface OpenAIMessage {
   role: string;
   content: string;

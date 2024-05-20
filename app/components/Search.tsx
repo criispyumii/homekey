@@ -4,9 +4,8 @@ import Button from "@mui/joy/Button";
 import FormControl from "@mui/joy/FormControl";
 import Stack from "@mui/joy/Stack";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import Typography from "@mui/joy/Typography";
 import { KeyboardEvent, useState } from "react";
-import { Textarea } from "@mui/joy";
+import { Alert, Textarea } from "@mui/joy";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   setSearchQuery,
@@ -19,20 +18,24 @@ import {
   selectIsLoadingHomes,
   setPages,
   selectHomes,
+  selectSearchLocation,
 } from "../redux/features/searchHomes.slice";
 import { getParams } from "../server/actions/getParams";
 import { getHomes } from "../server/actions/getHomes";
 import { HOMES_PER_PAGE, paramImportance } from "../constants";
 import { GetHomesParams, ValueOfGetHomesParams } from "../server/types";
-import { getRefinedMessage } from "../server/actions/getRefinedMessage";
+import { getRefinedMessage } from "../server/actions/refineMessage";
+import { PlacesAutocomplete } from "./PlacesAutocomplete";
 
 export default function Search() {
   const [value, setValue] = useState("");
   const [inputError, setInputError] = useState(false);
+  const [autocompleteError, setAutocompleteError] = useState(false);
   const isLoadingHomes = useAppSelector(selectIsLoadingHomes);
   const homes = useAppSelector(selectHomes);
   const resultsSummary = useAppSelector(selectResultsSummary);
   const missingLocationMessage = useAppSelector(selectLocationMessage);
+  const searchLocation = useAppSelector(selectSearchLocation);
   const dispatch = useAppDispatch();
 
   const onChangeHandler = (inputValue: string) => {
@@ -160,6 +163,11 @@ export default function Search() {
       return;
     }
 
+    if (searchLocation === null) {
+      setAutocompleteError(true);
+      return;
+    }
+
     dispatch(setSearchQuery(inputValue));
     dispatch(setIsLoadingHomes(true));
     dispatch(setResultsSummary(""));
@@ -167,14 +175,8 @@ export default function Search() {
 
     const params = await getParams(inputValue);
 
-    if (!params.location) {
-      params.location = "San Francisco";
-      dispatch(
-        setLocationMessage(
-          "Please include a location with your search! We have used San Francisco as a sample"
-        )
-      );
-    }
+    params.location =
+      searchLocation.placePrediction.structuredFormat.mainText.text;
 
     // this below can be cleaned up!
     const getHomesRes = await getHomes(params);
@@ -198,9 +200,8 @@ export default function Search() {
         return;
       }
     } else if (getHomesRes.message === "Location is not available") {
-      console.log(getHomesRes);
-
       const suggestedLocation = getHomesRes?.suggestionLocation?.[0].location;
+
       if (suggestedLocation?.length) {
         params.location = suggestedLocation;
         return await reAttemptSearch(params, true);
@@ -214,22 +215,28 @@ export default function Search() {
     <div>
       <Stack
         spacing={1}
-        direction="row"
-        sx={{ mb: 2, justifyContent: "center" }}
+        direction={{ sm: "row", xs: "column" }}
+        alignItems={{ xs: "center", sm: "stretch" }}
+        justifyContent={{ xs: "center" }}
+        sx={{ mb: 2 }}
       >
-        <FormControl sx={{ flex: 1, maxWidth: 700 }}>
+        <FormControl sx={{ flex: 1, maxWidth: 500 }}>
           <Textarea
             aria-label="Search"
             value={value}
             onChange={(e) => onChangeHandler(e.target.value)}
             onKeyDown={(e) => onEnterHandler(e)}
             error={inputError}
-            placeholder="Search for your ideal home"
+            placeholder="Type your home requirements..."
             disabled={isLoadingHomes}
             size="lg"
             sx={{ flex: 1 }}
           />
         </FormControl>
+        <PlacesAutocomplete
+          error={autocompleteError}
+          setError={setAutocompleteError}
+        />
         <Button
           variant="solid"
           color="primary"
@@ -242,22 +249,18 @@ export default function Search() {
       </Stack>
       <Stack direction={"column"} alignItems={"center"}>
         {missingLocationMessage && homes.length > 0 && resultsSummary && (
-          <Typography level="h4" sx={{ color: "black" }}>
+          <Alert sx={{ mb: 2, fontWeight: "600" }}>
             {missingLocationMessage}
-          </Typography>
+          </Alert>
         )}
         {resultsSummary && (
-          <Typography
-            level="h4"
-            sx={{
-              marginTop: "10px",
-              marginBottom: "20px",
-              color: "black",
-              textAlign: "center",
-            }}
+          <Alert
+            size="lg"
+            sx={{ textAlign: "center", maxWidth: 750, fontWeight: "600" }}
+            color="success"
           >
             {resultsSummary}
-          </Typography>
+          </Alert>
         )}
       </Stack>
     </div>

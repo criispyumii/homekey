@@ -1,6 +1,6 @@
 import { GetHomesParams } from "./server/types";
 
-export const HOMES_PER_PAGE = 10;
+export const HOMES_PER_PAGE = 7;
 export const paramImportance: (keyof GetHomesParams)[] = [
   "keyword_search",
   "min_bathroom",

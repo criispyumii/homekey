@@ -5,28 +5,80 @@ import { HOMES_PER_PAGE } from "../constants";
 import {
   selectHomes,
   selectIsLoadingHomes,
+  selectLocationMessage,
   selectPages,
-  selectSearchQuery,
+  selectResultsSummary,
+  setIsLoadingPhotos,
 } from "../redux/features/searchHomes.slice";
-import { useAppSelector } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import Filters from "./Filters";
 import Pagination from "./Pagination";
 import PropertyCard from "./PropertyCard";
+import { getPhotos } from "../server/actions/getPhotos";
+import { useEffect, useMemo, useState } from "react";
+
+const fetchPhoto = async (listingUrl: string) => {
+  const image =
+    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400";
+
+  try {
+    const photosData = await getPhotos(listingUrl);
+    const photosUrl = photosData?.data[0].photoUrls;
+    const foundImage =
+      photosUrl.nonFullScreenPhotoUrlCompressed ||
+      photosUrl.nonFullScreenPhotoUrl ||
+      photosUrl.fullScreenPhotoUrl ||
+      photosUrl.lightboxListUrl;
+    if (foundImage) return foundImage;
+  } catch (error) {
+    console.error("Error fetching photo, will use default. Error: ", error);
+  }
+
+  return image;
+};
 
 export const HomesList = () => {
   const homes = useAppSelector(selectHomes);
-  const searchQuery = useAppSelector(selectSearchQuery);
-  const isLoadingHomes = useAppSelector(selectIsLoadingHomes);
   const { currentPage } = useAppSelector(selectPages);
+  const isLoadingHomes = useAppSelector(selectIsLoadingHomes);
+  const [photos, setPhotos] = useState<{ [page: number]: string[] }>({});
+  const resultsSummary = useAppSelector(selectResultsSummary);
+  const locationMessage = useAppSelector(selectLocationMessage);
+  const [fetchedPages, setFetchedPages] = useState(new Set<number>());
+  const dispatch = useAppDispatch();
 
-  const currentData = homes.slice(
-    (currentPage - 1) * HOMES_PER_PAGE,
-    currentPage * HOMES_PER_PAGE
+  const currentData = useMemo(
+    () =>
+      homes.slice(
+        (currentPage - 1) * HOMES_PER_PAGE,
+        currentPage * HOMES_PER_PAGE
+      ),
+    [homes, currentPage]
   );
 
-  const marginTop =
-    searchQuery.length > 60 ? { xs: 10, md: 7 } : { xs: 7, md: 3 };
+  useEffect(() => {
+    const fetchAllPhotos = async () => {
+      dispatch(setIsLoadingPhotos(true));
+      const photoPromises = currentData.map((home) => fetchPhoto(home.url));
+      const fetchedPhotos = await Promise.all(photoPromises);
+      setPhotos((prevPhotos) => ({
+        ...prevPhotos,
+        [currentPage - 1]: fetchedPhotos,
+      }));
+      dispatch(setIsLoadingPhotos(false));
+    };
 
+    if (currentData.length > 0 && !fetchedPages.has(currentPage)) {
+      fetchAllPhotos();
+      setFetchedPages((prev) => new Set(prev).add(currentPage));
+    }
+  }, [currentData, currentPage, fetchedPages, dispatch]);
+
+  const marginTop =
+    resultsSummary.length > 100 ? { xs: 20, md: 7 } : { xs: 10 };
+  const gridRow = locationMessage
+    ? { xs: "5 / 6" }
+    : { xs: "5 / 6", sm: "3 / 6", md: "4/6" };
   return (
     <>
       <Stack
@@ -35,9 +87,9 @@ export const HomesList = () => {
           px: { xs: 2, md: 4 },
           pt: 2,
           mt: marginTop,
-          gridRow: "4 / 6",
           gridColumn: "1 / 5",
         }}
+        gridRow={gridRow}
       >
         <Filters />
         <Stack spacing={2} sx={{ overflow: "auto" }}>
@@ -63,39 +115,42 @@ export const HomesList = () => {
               );
             })}
 
-          {currentData.map((home) => {
-            const {
-              listingId,
-              streetLine,
-              city,
-              state,
-              listingRemarks,
-              price,
-              beds,
-              baths,
-              sqFt,
-              stories,
-              yearBuilt,
-              url,
-            } = home;
+          {!isLoadingHomes &&
+            currentData.map((home, i) => {
+              const {
+                listingId,
+                streetLine,
+                city,
+                state,
+                listingRemarks,
+                price,
+                beds,
+                baths,
+                sqFt,
+                stories,
+                yearBuilt,
+                url,
+              } = home;
 
-            return (
-              <PropertyCard
-                key={listingId}
-                price={price.value}
-                bedrooms={beds}
-                bathrooms={baths}
-                title={streetLine.value}
-                cityState={`${city}, ${state}`}
-                category={decodeHtmlEntities(listingRemarks)}
-                sqFt={sqFt.value}
-                stories={stories}
-                yearBuilt={yearBuilt.value}
-                url={url}
-                image="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400"
-              />
-            );
-          })}
+              return (
+                <PropertyCard
+                  key={listingId}
+                  price={price.value}
+                  bedrooms={beds}
+                  bathrooms={baths}
+                  title={streetLine.value}
+                  cityState={`${city}, ${state}`}
+                  category={decodeHtmlEntities(listingRemarks)}
+                  sqFt={sqFt.value}
+                  stories={stories}
+                  yearBuilt={yearBuilt.value}
+                  url={url}
+                  image={
+                    photos[currentPage - 1] ? photos[currentPage - 1][i] : ""
+                  }
+                />
+              );
+            })}
         </Stack>
         {homes.length > 0 && <Pagination siblingCount={2} boundaryCount={1} />}
       </Stack>

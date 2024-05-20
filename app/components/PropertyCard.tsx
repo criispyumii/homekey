@@ -20,7 +20,10 @@ import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import React, { useState } from "react";
-import { selectIsLoadingHomes } from "../redux/features/searchHomes.slice";
+import {
+  selectIsLoadingHomes,
+  selectIsLoadingPhotos,
+} from "../redux/features/searchHomes.slice";
 import { useAppSelector } from "../redux/hooks";
 
 type PropertyCardProps = {
@@ -57,7 +60,8 @@ export default function PropertyCard(props: PropertyCardProps) {
   } = props;
 
   const [isLiked, setIsLiked] = useState(liked);
-  const isLoading = useAppSelector(selectIsLoadingHomes);
+  const isLoadingHomes = useAppSelector(selectIsLoadingHomes);
+  const isLoadingPhotos = useAppSelector(selectIsLoadingPhotos);
 
   return (
     <Card
@@ -91,7 +95,7 @@ export default function PropertyCard(props: PropertyCardProps) {
             "--AspectRatio-maxHeight": { xs: "160px", sm: "9999px" },
           }}
         >
-          <Skeleton loading={isLoading}>
+          <Skeleton loading={isLoadingHomes || isLoadingPhotos}>
             <img alt="" src={image} />
           </Skeleton>
           <Stack
@@ -121,7 +125,7 @@ export default function PropertyCard(props: PropertyCardProps) {
                 zIndex: "20",
               }}
             >
-              <Skeleton loading={isLoading} />
+              <Skeleton loading={isLoadingHomes} />
               <FavoriteRoundedIcon />
             </IconButton>
           </Stack>
@@ -136,10 +140,10 @@ export default function PropertyCard(props: PropertyCardProps) {
         >
           <div>
             <Typography level="body-sm" sx={{ mb: 2 }}>
-              <Skeleton loading={isLoading}>{category}...</Skeleton>
+              <Skeleton loading={isLoadingHomes}>{category}...</Skeleton>
             </Typography>
             <Typography level="title-md">
-              <Skeleton loading={isLoading}>{title}</Skeleton>
+              <Skeleton loading={isLoadingHomes}>{title}</Skeleton>
             </Typography>
           </div>
           <IconButton
@@ -152,7 +156,7 @@ export default function PropertyCard(props: PropertyCardProps) {
               borderRadius: "50%",
             }}
           >
-            <Skeleton loading={isLoading} />
+            <Skeleton loading={isLoadingHomes} />
             <FavoriteRoundedIcon />
           </IconButton>
         </Stack>
@@ -168,11 +172,11 @@ export default function PropertyCard(props: PropertyCardProps) {
             startDecorator={
               <>
                 <FmdGoodRoundedIcon />
-                <Skeleton loading={isLoading} />
+                <Skeleton loading={isLoadingHomes} />
               </>
             }
           >
-            <Skeleton loading={isLoading}>{cityState}</Skeleton>
+            <Skeleton loading={isLoadingHomes}>{cityState}</Skeleton>
           </Typography>
 
           <Typography
@@ -180,22 +184,22 @@ export default function PropertyCard(props: PropertyCardProps) {
             startDecorator={
               <>
                 <KingBedRoundedIcon />
-                <Skeleton loading={isLoading} />
+                <Skeleton loading={isLoadingHomes} />
               </>
             }
           >
-            <Skeleton loading={isLoading}>{bedrooms} rooms</Skeleton>
+            <Skeleton loading={isLoadingHomes}>{bedrooms} rooms</Skeleton>
           </Typography>
           <Typography
             level="body-xs"
             startDecorator={
               <>
                 <Wc />
-                <Skeleton loading={isLoading} />
+                <Skeleton loading={isLoadingHomes} />
               </>
             }
           >
-            <Skeleton loading={isLoading}>{bathrooms} baths</Skeleton>
+            <Skeleton loading={isLoadingHomes}>{bathrooms} baths</Skeleton>
           </Typography>
         </Stack>
         <Stack direction="row">
@@ -210,11 +214,11 @@ export default function PropertyCard(props: PropertyCardProps) {
               startDecorator={
                 <>
                   <SquareFoot />
-                  <Skeleton loading={isLoading} />
+                  <Skeleton loading={isLoadingHomes} />
                 </>
               }
             >
-              <Skeleton loading={isLoading}>{sqFt} SqFt</Skeleton>
+              <Skeleton loading={isLoadingHomes}>{sqFt} SqFt</Skeleton>
             </Typography>
             {stories > 1 && (
               <Typography
@@ -222,11 +226,11 @@ export default function PropertyCard(props: PropertyCardProps) {
                 startDecorator={
                   <>
                     <WebStories />
-                    <Skeleton loading={isLoading} />
+                    <Skeleton loading={isLoadingHomes} />
                   </>
                 }
               >
-                <Skeleton loading={isLoading}>{stories} stories</Skeleton>
+                <Skeleton loading={isLoadingHomes}>{stories} stories</Skeleton>
               </Typography>
             )}
             {yearBuilt && (
@@ -235,16 +239,18 @@ export default function PropertyCard(props: PropertyCardProps) {
                 startDecorator={
                   <>
                     <CalendarMonth />
-                    <Skeleton loading={isLoading} />
+                    <Skeleton loading={isLoadingHomes} />
                   </>
                 }
               >
-                <Skeleton loading={isLoading}>Year Built: {yearBuilt}</Skeleton>
+                <Skeleton loading={isLoadingHomes}>
+                  Year Built: {yearBuilt}
+                </Skeleton>
               </Typography>
             )}
           </Stack>
           <Typography level="title-lg" sx={{ flexGrow: 1, textAlign: "right" }}>
-            <Skeleton loading={isLoading}>
+            <Skeleton loading={isLoadingHomes}>
               <strong>{`$${price.toLocaleString()}`}</strong>{" "}
             </Skeleton>
           </Typography>
@@ -254,12 +260,12 @@ export default function PropertyCard(props: PropertyCardProps) {
           startDecorator={
             <>
               <InsertLink />
-              <Skeleton loading={isLoading} />
+              <Skeleton loading={isLoadingHomes} />
             </>
           }
           sx={{ mt: 1 }}
         >
-          <Skeleton loading={isLoading}>
+          <Skeleton loading={isLoadingHomes}>
             {
               <a
                 target="_blank"

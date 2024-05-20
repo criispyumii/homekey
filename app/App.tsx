@@ -22,20 +22,30 @@ export const App = () => {
         height: "100vh",
         width: "100%",
         display: "grid",
-        gridTemplateRows: "55px 130px 100px 70px auto 60px",
+        gridTemplateRows: "55px 130px 100px 70px auto 30px",
         gridTemplateColumns: "1fr 2fr 0.7fr 100px",
-        background: "#9CD5CF",
       }}
     >
-      <Box
-        sx={{
-          backgroundImage: `url(${bg.src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "bottom",
-          gridRow: "1 / 7",
-          gridColumn: "1 / 5",
-        }}
-      />
+      {isDefaultPage ? (
+        <Box
+          sx={{
+            backgroundImage: `url(${bg.src})`,
+            backgroundSize: "cover",
+            backgroundPosition: "bottom",
+            gridRow: "1 / 7",
+            gridColumn: "1 / 5",
+          }}
+        />
+      ) : (
+        <Box
+          sx={{
+            background: "linear-gradient(#91D3D1, #D0E6E3)",
+            gridRow: "1 / 7",
+            gridColumn: "1 / 5",
+          }}
+        />
+      )}
+
       {!isDefaultPage && <Navbar />}
       <SearchPanel isDefaultPage={isDefaultPage} />
       {!isDefaultPage && <HomesList />}
