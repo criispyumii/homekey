@@ -25,6 +25,7 @@ import {
   selectIsLoadingPhotos,
 } from "../redux/features/searchHomes.slice";
 import { useAppSelector } from "../redux/hooks";
+import Image from "next/image";
 
 type PropertyCardProps = {
   bedrooms: number;
@@ -96,7 +97,7 @@ export default function PropertyCard(props: PropertyCardProps) {
           }}
         >
           <Skeleton loading={isLoadingHomes || isLoadingPhotos}>
-            <img alt="" src={image} />
+            <Image alt="Property Image" src={image} />
           </Skeleton>
           <Stack
             alignItems="center"

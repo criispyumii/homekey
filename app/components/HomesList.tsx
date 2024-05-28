@@ -14,28 +14,8 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import Filters from "./Filters";
 import Pagination from "./Pagination";
 import PropertyCard from "./PropertyCard";
-import { getPhotos } from "../server/actions/getPhotos";
+import { fetchPhoto } from "../server/actions/getPhotos";
 import { useEffect, useMemo, useState } from "react";
-
-const fetchPhoto = async (listingUrl: string) => {
-  const image =
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400";
-
-  try {
-    const photosData = await getPhotos(listingUrl);
-    const photosUrl = photosData?.data[0].photoUrls;
-    const foundImage =
-      photosUrl.nonFullScreenPhotoUrlCompressed ||
-      photosUrl.nonFullScreenPhotoUrl ||
-      photosUrl.fullScreenPhotoUrl ||
-      photosUrl.lightboxListUrl;
-    if (foundImage) return foundImage;
-  } catch (error) {
-    console.error("Error fetching photo, will use default. Error: ", error);
-  }
-
-  return image;
-};
 
 export const HomesList = () => {
   const homes = useAppSelector(selectHomes);
@@ -79,81 +59,81 @@ export const HomesList = () => {
   const gridRow = locationMessage
     ? { xs: "5 / 6" }
     : { xs: "5 / 6", sm: "3 / 6", md: "4/6" };
+
   return (
-    <>
-      <Stack
-        spacing={2}
-        sx={{
-          px: { xs: 2, md: 4 },
-          pt: 2,
-          mt: marginTop,
-          gridColumn: "1 / 5",
-        }}
-        gridRow={gridRow}
-      >
-        <Filters />
-        <Stack spacing={2} sx={{ overflow: "auto" }}>
-          {isLoadingHomes &&
-            new Array(5).fill(0).map((_, i) => {
-              return (
-                <PropertyCard
-                  key={i}
-                  price={1000000}
-                  bedrooms={3}
-                  bathrooms={2}
-                  title={"12345 Mary Lane"}
-                  cityState="Los Angeles, CA"
-                  category="Contractor's Special! Great starter home featuring 2 bedrooms, 1 bathroom, a living room, dining area, kitchen, spacious yard, and a full basement in the desirable Ingleside Heights neighborhood. Fixer upper home needs updates. Discover expansion possibilities with assistance from the city planning department."
-                  sqFt={1000}
-                  stories={3}
-                  yearBuilt={1990}
-                  url={
-                    "www.redfin.com/CA/San-Francisco/142-Bright-St-94132/home/1257743"
-                  }
-                  image=""
-                />
-              );
-            })}
+    <Stack
+      spacing={2}
+      sx={{
+        px: { xs: 2, md: 4 },
+        pt: 2,
+        mt: marginTop,
+        gridColumn: "1 / 5",
+      }}
+      gridRow={gridRow}
+    >
+      <Filters />
+      <Stack spacing={2} sx={{ overflow: "auto" }}>
+        {isLoadingHomes &&
+          new Array(5).fill(0).map((_, i) => {
+            return (
+              <PropertyCard
+                data-last-child="loading_property_card"
+                key={i}
+                price={1000000}
+                bedrooms={3}
+                bathrooms={2}
+                title={"12345 Mary Lane"}
+                cityState="Los Angeles, CA"
+                category="Contractor's Special! Great starter home featuring 2 bedrooms, 1 bathroom, a living room, dining area, kitchen, spacious yard, and a full basement in the desirable Ingleside Heights neighborhood. Fixer upper home needs updates. Discover expansion possibilities with assistance from the city planning department."
+                sqFt={1000}
+                stories={3}
+                yearBuilt={1990}
+                url={
+                  "www.redfin.com/CA/San-Francisco/142-Bright-St-94132/home/1257743"
+                }
+                image=""
+              />
+            );
+          })}
 
-          {!isLoadingHomes &&
-            currentData.map((home, i) => {
-              const {
-                listingId,
-                streetLine,
-                city,
-                state,
-                listingRemarks,
-                price,
-                beds,
-                baths,
-                sqFt,
-                stories,
-                yearBuilt,
-                url,
-              } = home;
+        {!isLoadingHomes &&
+          currentData.map((home, i) => {
+            const {
+              listingId,
+              streetLine,
+              city,
+              state,
+              listingRemarks,
+              price,
+              beds,
+              baths,
+              sqFt,
+              stories,
+              yearBuilt,
+              url,
+            } = home;
 
-              return (
-                <PropertyCard
-                  key={listingId}
-                  price={price.value}
-                  bedrooms={beds}
-                  bathrooms={baths}
-                  title={streetLine.value}
-                  cityState={`${city}, ${state}`}
-                  category={decodeHtmlEntities(listingRemarks)}
-                  sqFt={sqFt.value}
-                  stories={stories}
-                  yearBuilt={yearBuilt.value}
-                  url={url}
-                  image={
-                    photos[currentPage - 1] ? photos[currentPage - 1][i] : ""
-                  }
-                />
-              );
-            })}
-        </Stack>
-        {homes.length > 0 && <Pagination siblingCount={2} boundaryCount={1} />}
+            return (
+              <PropertyCard
+                key={listingId}
+                price={price.value}
+                bedrooms={beds}
+                bathrooms={baths}
+                title={streetLine.value}
+                cityState={`${city}, ${state}`}
+                category={decodeHtmlEntities(listingRemarks)}
+                sqFt={sqFt.value}
+                stories={stories}
+                yearBuilt={yearBuilt.value}
+                url={url}
+                image={
+                  photos[currentPage - 1] ? photos[currentPage - 1][i] : ""
+                }
+              />
+            );
+          })}
       </Stack>
-    </>
+      {homes.length > 0 && <Pagination siblingCount={2} boundaryCount={1} />}
+    </Stack>
   );
 };

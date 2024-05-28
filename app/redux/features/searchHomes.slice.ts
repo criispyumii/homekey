@@ -17,7 +17,7 @@ interface SearchAreaSliceState {
   pages: Pages;
 }
 
-const initialState: SearchAreaSliceState = {
+export const initialState: SearchAreaSliceState = {
   search_query: "",
   search_location: null,
   homes: [],
