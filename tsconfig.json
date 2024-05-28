@@ -12,11 +12,13 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["@testing-library/jest-dom"],
     "plugins": [
       {
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }
@@ -25,6 +27,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "types.d.ts",
     ".next/types/**/*.ts",
     "app/utils.ts",
     "jest.config.ts"

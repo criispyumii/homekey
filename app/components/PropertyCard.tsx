@@ -97,7 +97,16 @@ export default function PropertyCard(props: PropertyCardProps) {
           }}
         >
           <Skeleton loading={isLoadingHomes || isLoadingPhotos}>
-            <Image alt="Property Image" src={image} />
+            <Image
+              alt="Property Image"
+              src={
+                image ||
+                "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400"
+              }
+              fill
+              priority
+              sizes="(max-width: 180px) 100vw"
+            />
           </Skeleton>
           <Stack
             alignItems="center"

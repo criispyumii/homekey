@@ -91,7 +91,7 @@ export const HomesList = () => {
                 url={
                   "www.redfin.com/CA/San-Francisco/142-Bright-St-94132/home/1257743"
                 }
-                image=""
+                image="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400"
               />
             );
           })}
