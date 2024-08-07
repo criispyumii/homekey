@@ -11,7 +11,7 @@ export const getParams = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPEN_AI_PROJECT_KEY}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPEN_AI_PROJECT_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-4o",
